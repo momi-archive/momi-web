@@ -54,6 +54,16 @@ pnpm test:e2e     # Playwright E2E 테스트
 pnpm lint         # ESLint 검사
 ```
 
+## 디자인
+
+**중요**: UI 개발 시 반드시 [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) 참조
+
+- **스타일**: 토스 + Apple 리퀴드 글래스
+- **컬러**: 블루 계열 Primary (#3B82F6)
+- **폰트**: Pretendard
+- **특징**: 글래스모피즘, 부드러운 그림자, 충분한 여백
+
 ## 문서
 
+- [디자인 시스템](./DESIGN_SYSTEM.md) - 컬러, 타이포, 컴포넌트 가이드
 - [ADR 목록](./docs/adr/README.md) - 기술 결정 기록
