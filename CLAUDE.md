@@ -74,6 +74,37 @@ pnpm dlx shadcn@latest add [컴포넌트명]
 # 설치된 컴포넌트: button, input, card, dialog, dropdown-menu, avatar, badge, tabs, form, label, sonner
 ```
 
+## AI 에이전트
+
+프로젝트에 설정된 커스텀 에이전트들입니다. 자연어로 요청하면 자동 실행됩니다.
+
+### Playwright 테스트 에이전트
+
+| 에이전트 | 역할 | 트리거 예시 |
+|---------|------|------------|
+| playwright-test-planner | 테스트 계획 수립 | "E2E 테스트 계획 작성해줘" |
+| playwright-test-generator | 테스트 코드 생성 | "테스트 코드 생성해줘" |
+| playwright-test-healer | 실패 테스트 복구 | "실패한 테스트 고쳐줘" |
+
+**워크플로우**:
+1. `planner`: 페이지 분석 → `specs/*.md` 테스트 계획 생성
+2. `generator`: 계획 기반 → `e2e/*.spec.ts` 테스트 코드 생성
+3. `healer`: 테스트 실패 시 디버깅 및 수정
+
+### 개발 지원 에이전트
+
+| 에이전트 | 역할 | 트리거 예시 |
+|---------|------|------------|
+| bug-fixer | 버그 분석/수정 | "이 에러 고쳐줘" |
+| code-reviewer | 코드 리뷰 | "코드 검토해줘" |
+| ui-publisher | UI 퍼블리싱 | "UI 컴포넌트 만들어줘" |
+
+### 에이전트 관리
+
+```bash
+/agents          # 에이전트 목록 및 관리
+```
+
 ## 문서
 
 - [디자인 시스템](./DESIGN_SYSTEM.md) - 컬러, 타이포, 컴포넌트 가이드
