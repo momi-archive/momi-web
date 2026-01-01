@@ -7,14 +7,15 @@
 - **프레임워크**: React 19 + TypeScript 5.9 + Vite 7
 - **상태 관리**: TanStack Query (서버), Zustand (클라이언트)
 - **폼**: React Hook Form + Zod
-- **스타일**: TailwindCSS
+- **스타일**: TailwindCSS + shadcn/ui
 - **테스트**: Vitest + Testing Library + Playwright
 
 ## 프로젝트 구조
 
 ```
 src/
-├── components/    # 재사용 컴포넌트
+├── components/
+│   └── ui/        # shadcn/ui 컴포넌트
 ├── pages/         # 페이지 컴포넌트
 ├── lib/           # 유틸리티 함수
 ├── hooks/         # 커스텀 훅
@@ -58,10 +59,20 @@ pnpm lint         # ESLint 검사
 
 **중요**: UI 개발 시 반드시 [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) 참조
 
+- **컴포넌트**: shadcn/ui (Radix UI + Tailwind)
 - **스타일**: 토스 + Apple 리퀴드 글래스
 - **컬러**: 블루 계열 Primary (#3B82F6)
 - **폰트**: Pretendard
 - **특징**: 글래스모피즘, 부드러운 그림자, 충분한 여백
+
+### shadcn/ui 컴포넌트
+
+```bash
+# 컴포넌트 추가
+pnpm dlx shadcn@latest add [컴포넌트명]
+
+# 설치된 컴포넌트: button, input, card, dialog, dropdown-menu, avatar, badge, tabs, form, label, sonner
+```
 
 ## 문서
 

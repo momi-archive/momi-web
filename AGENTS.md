@@ -13,12 +13,23 @@
 | 프레임워크 | React 19 + TypeScript 5.9 + Vite 7 |
 | 상태 관리 | TanStack Query (서버), Zustand (클라이언트) |
 | 폼 | React Hook Form + Zod |
-| 스타일 | TailwindCSS + CSS 변수 |
+| 스타일 | TailwindCSS + shadcn/ui |
 | 테스트 | Vitest + Testing Library + Playwright |
 
 ## 디자인 시스템
 
 **필수**: UI 개발 시 반드시 [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) 참조
+
+### 컴포넌트 라이브러리
+
+**shadcn/ui** 사용 (Radix UI + Tailwind CSS)
+
+```bash
+# 컴포넌트 추가
+pnpm dlx shadcn@latest add [컴포넌트명]
+```
+
+설치된 컴포넌트: `button`, `input`, `card`, `dialog`, `dropdown-menu`, `avatar`, `badge`, `tabs`, `form`, `label`, `sonner`
 
 ### 스타일 방향
 
@@ -56,7 +67,8 @@
 ```
 src/
 ├── api/           # API 함수
-├── components/    # 재사용 컴포넌트
+├── components/
+│   └── ui/        # shadcn/ui 컴포넌트
 ├── hooks/         # 커스텀 훅 (TanStack Query 훅 포함)
 ├── pages/         # 페이지 컴포넌트
 ├── lib/           # 유틸리티 함수

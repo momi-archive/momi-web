@@ -107,7 +107,78 @@
 
 ---
 
-## 컴포넌트 스타일
+## shadcn/ui 컴포넌트
+
+프로젝트는 [shadcn/ui](https://ui.shadcn.com)를 사용합니다. Radix UI 기반의 접근성 좋은 컴포넌트를 Tailwind로 스타일링합니다.
+
+### 설치된 컴포넌트
+
+| 컴포넌트 | import 경로 | 용도 |
+|---------|-------------|------|
+| Button | `@/components/ui/button` | 버튼 |
+| Input | `@/components/ui/input` | 입력 필드 |
+| Card | `@/components/ui/card` | 카드 레이아웃 |
+| Dialog | `@/components/ui/dialog` | 모달/다이얼로그 |
+| DropdownMenu | `@/components/ui/dropdown-menu` | 드롭다운 메뉴 |
+| Avatar | `@/components/ui/avatar` | 아바타 |
+| Badge | `@/components/ui/badge` | 배지/태그 |
+| Tabs | `@/components/ui/tabs` | 탭 UI |
+| Form | `@/components/ui/form` | 폼 (RHF 통합) |
+| Label | `@/components/ui/label` | 라벨 |
+| Sonner | `@/components/ui/sonner` | 토스트 알림 |
+
+### 사용 예시
+
+```tsx
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+
+// 버튼 variants
+<Button>Primary</Button>
+<Button variant="secondary">Secondary</Button>
+<Button variant="outline">Outline</Button>
+<Button variant="ghost">Ghost</Button>
+<Button variant="destructive">Destructive</Button>
+
+// 카드
+<Card>
+  <CardHeader>
+    <CardTitle>제목</CardTitle>
+  </CardHeader>
+  <CardContent>
+    <Input placeholder="입력하세요" />
+  </CardContent>
+</Card>
+```
+
+### 컴포넌트 추가
+
+```bash
+pnpm dlx shadcn@latest add [컴포넌트명]
+```
+
+### shadcn/ui + 커스텀 스타일 조합
+
+shadcn/ui 컴포넌트와 커스텀 스타일을 함께 사용:
+
+```tsx
+// shadcn Button + 커스텀 호버 효과
+<Button className="hover:-translate-y-0.5 hover:shadow-soft transition-all">
+  버튼
+</Button>
+
+// shadcn Card + 글래스 효과
+<Card className="glass">
+  <CardContent>글래스 카드</CardContent>
+</Card>
+```
+
+---
+
+## 커스텀 컴포넌트 스타일
+
+shadcn/ui에 없는 커스텀 스타일:
 
 ### 버튼
 
@@ -387,6 +458,7 @@ import { Search } from 'lucide-react';
 
 ## 참고 레퍼런스
 
+- [shadcn/ui](https://ui.shadcn.com) - 컴포넌트 라이브러리
 - [토스 디자인 시스템](https://toss.im/design-system)
 - [Apple Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines)
 - [Tailwind CSS v4](https://tailwindcss.com)
