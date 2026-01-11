@@ -1,73 +1,52 @@
-# React + TypeScript + Vite
+# 🌙 Momi (모미)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> **"영감을 기록하고, 나만의 공간을 채우다."**
 
-Currently, two official plugins are available:
+Momi는 웹 서핑 중 발견한 영감 넘치는 링크와 떠오르는 아이디어를 마크다운 형식으로 빠르게 기록하고 관리할 수 있는 **개인용 아카이빙 서비스**입니다.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ 주요 기능
 
-## React Compiler
+- **🏠 스마트 대시보드**: 사이드바와 그리드 레이아웃을 통해 기록을 한눈에 관리
+- **🔗 링크 아카이빙**: 중요한 웹 페이지 링크를 카테고리별로 저장
+- **📝 마크다운 메모**: 생각을 자유롭게 기록하고 마크다운 문법으로 서식 관리
+- **📂 카테고리 시스템**: 커스텀 컬러와 이름을 가진 카테고리로 데이터 분류
+- **🔍 실시간 검색**: 제목과 내용을 기반으로 필요한 기록을 즉시 검색
+- **🌓 다크 모드**: 눈이 편안한 Midnight & Aurora 테마 지원
+- **🔒 개인화된 보안**: Google OAuth 로그인 및 RLS 정책을 통해 자신만의 프라이빗한 공간 보장
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠 Tech Stack
 
-## Expanding the ESLint configuration
+- **Frontend**: React, Vite, TypeScript, Tailwind CSS, Lucide React
+- **UI Library**: Shadcn/UI (Radix UI)
+- **Backend**: Supabase (Database, Authentication, RLS)
+- **State Management**: TanStack Query (React Query)
+- **Styling**: Vanilla CSS Variables (Midnight & Aurora Design System)
+- **Deployment**: Vercel
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🚀 시작하기
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+1. **저장소 클론**
+   ```bash
+   git clone https://github.com/momi-archive/momi-web.git
+   ```
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+2. **의존성 설치**
+   ```bash
+   pnpm install
+   ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+3. **환경 변수 설정**
+   `.env` 파일을 루트 디렉토리에 생성하고 Supabase 정보를 입력합니다.
+   ```env
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+4. **개발 서버 실행**
+   ```bash
+   pnpm dev
+   ```
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🗺 Roadmap
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+자세한 개발 현황 및 향후 계획은 [ROADMAP.md](./docs/ROADMAP.md)에서 확인하실 수 있습니다.
