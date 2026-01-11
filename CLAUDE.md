@@ -72,7 +72,7 @@ pnpm lint         # ESLint 검사
 # 컴포넌트 추가
 pnpm dlx shadcn@latest add [컴포넌트명]
 
-# 설치된 컴포넌트: button, input, card, dialog, dropdown-menu, avatar, badge, tabs, form, label, sonner
+# 설치된 컴포넌트: button, input, card, dialog, dropdown-menu, avatar, badge, tabs, form, label, sonner, drawer, textarea, select
 ```
 
 ## AI 에이전트
