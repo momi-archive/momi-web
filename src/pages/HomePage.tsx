@@ -1,16 +1,34 @@
 import { ArchiveInput } from "@/components/archives/ArchiveInput";
 import { ArchiveGrid } from "@/components/archives/ArchiveGrid";
+import { QuickMemoDialog } from "@/components/archives/QuickMemoDialog";
+import { QuickSearchDialog } from "@/components/QuickSearchDialog";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { MobileNavigation } from "@/components/layout/MobileNavigation";
 import { useState, useEffect, useRef } from "react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { SearchInput } from "@/components/search-input";
 import { useSearchParams } from "react-router-dom";
+import { useQuickMemo } from "@/hooks/useQuickMemo";
+import { useQuickSearch } from "@/hooks/useQuickSearch";
 
 export function HomePage() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
+
+  // 빠른 메모 (Cmd/Ctrl + V)
+  const {
+    clipboardContent,
+    isOpen: isQuickMemoOpen,
+    setIsOpen: setQuickMemoOpen,
+    reset: resetQuickMemo,
+  } = useQuickMemo();
+
+  // 빠른 검색 (Cmd/Ctrl + K)
+  const {
+    isOpen: isQuickSearchOpen,
+    setIsOpen: setQuickSearchOpen,
+  } = useQuickSearch();
 
   // 북마클릿에서 전달받은 데이터
   const [bookmarkletData, setBookmarkletData] = useState<{
@@ -88,19 +106,18 @@ export function HomePage() {
                     영감을 기록하고 정리하세요.
                 </p>
             </div>
-            <ModeToggle />
-          </div>
-
-            {/* Add Button */}
-            <div className="max-w-sm">
+            <div className="flex items-center gap-2">
                 <ArchiveInput
                   open={isAddDialogOpen}
                   onOpenChange={handleDialogOpenChange}
                   onSuccess={handleArchiveAdded}
                   defaultUrl={bookmarkletData?.url}
                   defaultTitle={bookmarkletData?.title}
+                  compact
                 />
+                <ModeToggle />
             </div>
+          </div>
 
             {/* Grid Section */}
             <div className="relative min-h-[400px]">
@@ -119,6 +136,20 @@ export function HomePage() {
                 <ArchiveGrid selectedCategoryId={selectedCategoryId} searchQuery={searchQuery} />
             </div>
         </div>
+
+      {/* 빠른 메모 다이얼로그 (Cmd/Ctrl + V) */}
+      <QuickMemoDialog
+        open={isQuickMemoOpen}
+        onOpenChange={setQuickMemoOpen}
+        defaultContent={clipboardContent}
+        onSuccess={resetQuickMemo}
+      />
+
+      {/* 빠른 검색 다이얼로그 (Cmd/Ctrl + K) */}
+      <QuickSearchDialog
+        open={isQuickSearchOpen}
+        onOpenChange={setQuickSearchOpen}
+      />
     </div>
   );
 }

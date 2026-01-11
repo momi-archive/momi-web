@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { Folder, LogOut } from "lucide-react";
+import { Folder, LogOut, HelpCircle } from "lucide-react";
 import { useCategories } from "@/hooks/useArchives";
 import { CategoryManager } from "../categories/CategoryManager";
 import { useAuth } from "@/hooks/useAuth";
-import { BookmarkletGuide } from "../BookmarkletGuide";
+import { Link } from "react-router-dom";
 
 interface SidebarProps {
   selectedCategoryId?: string;
@@ -17,7 +17,7 @@ export function Sidebar({ selectedCategoryId, onSelectCategory }: SidebarProps) 
   return (
     <div className="w-64 space-y-6 py-4 hidden md:flex md:flex-col pl-2 sticky top-0 h-screen overflow-y-auto">
       <div className="flex-1 space-y-6">
-        <div className="px-6 py-4 flex items-center gap-3">
+        <Link to="/" className="px-6 py-4 flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
           <div className="h-10 w-10 rounded-xl overflow-hidden bg-white shadow-sm border border-border/40 flex-shrink-0">
             <img src="/logo.png" alt="Momi Logo" className="h-full w-full object-cover" />
           </div>
@@ -26,7 +26,7 @@ export function Sidebar({ selectedCategoryId, onSelectCategory }: SidebarProps) 
               Momi
             </h1>
           </div>
-        </div>
+        </Link>
 
         <div className="px-3 py-2">
           <h2 className="mb-3 px-4 text-[11px] font-bold tracking-widest text-muted-foreground/60 uppercase">
@@ -73,7 +73,12 @@ export function Sidebar({ selectedCategoryId, onSelectCategory }: SidebarProps) 
         <div className="mb-2 px-2 text-xs text-muted-foreground truncate">
           {user?.email}
         </div>
-        <BookmarkletGuide />
+        <Button variant="ghost" className="w-full justify-start font-medium text-muted-foreground hover:text-foreground" asChild>
+          <Link to="/help">
+            <HelpCircle className="mr-2 h-4 w-4" />
+            도움말
+          </Link>
+        </Button>
         <Button
           variant="ghost"
           className="w-full justify-start text-muted-foreground hover:text-destructive"

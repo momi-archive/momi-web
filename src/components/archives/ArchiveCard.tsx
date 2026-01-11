@@ -5,16 +5,18 @@ import { ExternalLink, FileText, Link as LinkIcon, Trash2, Edit2 } from "lucide-
 import ReactMarkdown from "react-markdown";
 import { useCategories } from "@/hooks/useArchives";
 import { Badge } from "@/components/ui/badge";
-import { ArchiveInput } from "./ArchiveInput"; // Import ArchiveInput
+import { ArchiveInput } from "./ArchiveInput";
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { highlightText } from "@/lib/highlight";
 
 interface ArchiveCardProps {
   item: ArchiveItem;
   onDelete?: (id: string) => void;
+  searchQuery?: string;
 }
 
-export function ArchiveCard({ item, onDelete }: ArchiveCardProps) {
+export function ArchiveCard({ item, onDelete, searchQuery }: ArchiveCardProps) {
   const isLink = item.type === "link";
   const { data: categories } = useCategories();
   const category = categories?.find(c => c.id === item.category_id);
@@ -54,18 +56,22 @@ export function ArchiveCard({ item, onDelete }: ArchiveCardProps) {
                 )}
             </div>
             <h3 className="font-bold text-lg leading-tight line-clamp-2 group-hover:text-primary transition-colors">
-                {item.title || "Untitled"}
+                {searchQuery ? highlightText(item.title || "Untitled", searchQuery) : (item.title || "Untitled")}
             </h3>
         </CardHeader>
         
         <CardContent className="p-4 pt-0 flex-1 min-h-[80px]">
             {isLink ? (
                 <p className="text-sm text-muted-foreground line-clamp-3">
-                {item.content || "설명이 없습니다."}
+                {searchQuery ? highlightText(item.content || "설명이 없습니다.", searchQuery) : (item.content || "설명이 없습니다.")}
                 </p>
             ) : (
                 <div className="prose prose-sm dark:prose-invert line-clamp-6 text-sm">
-                    <ReactMarkdown>{item.content || ""}</ReactMarkdown>
+                    {searchQuery ? (
+                        <p>{highlightText(item.content || "", searchQuery)}</p>
+                    ) : (
+                        <ReactMarkdown>{item.content || ""}</ReactMarkdown>
+                    )}
                 </div>
             )}
         </CardContent>

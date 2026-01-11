@@ -52,9 +52,11 @@ interface ArchiveInputProps {
   defaultUrl?: string;
   /** 북마클릿에서 전달받은 기본 제목 */
   defaultTitle?: string;
+  /** 컴팩트 모드 (헤더용 작은 버튼) */
+  compact?: boolean;
 }
 
-export function ArchiveInput({ initialData, open, onOpenChange, trigger, onSuccess, defaultUrl, defaultTitle }: ArchiveInputProps) {
+export function ArchiveInput({ initialData, open, onOpenChange, trigger, onSuccess, defaultUrl, defaultTitle, compact }: ArchiveInputProps) {
   const [internalOpen, setInternalOpen] = useState(false);
   const isControlled = open !== undefined && onOpenChange !== undefined;
 
@@ -173,12 +175,22 @@ export function ArchiveInput({ initialData, open, onOpenChange, trigger, onSucce
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button
-            size="lg"
-            className="w-full h-14 text-lg bg-gradient-to-r from-primary-600 to-aurora-500 hover:opacity-90 shadow-lg animate-fade-in-up text-white"
-          >
-            <Plus className="mr-2 h-5 w-5" /> 기록 추가하기
-          </Button>
+          compact ? (
+            <Button
+              size="sm"
+              className="h-9 px-3 bg-gradient-to-r from-primary-600 to-aurora-500 hover:opacity-90 shadow-md text-white"
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">기록 추가</span>
+            </Button>
+          ) : (
+            <Button
+              size="lg"
+              className="w-full h-14 text-lg bg-gradient-to-r from-primary-600 to-aurora-500 hover:opacity-90 shadow-lg animate-fade-in-up text-white"
+            >
+              <Plus className="mr-2 h-5 w-5" /> 기록 추가하기
+            </Button>
+          )
         )}
       </DialogTrigger>
       <DialogContent className="w-[95vw] sm:max-w-[560px] md:max-w-[640px] glass border-white/20 p-0 overflow-hidden gap-0 max-h-[90vh] overflow-y-auto">

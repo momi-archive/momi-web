@@ -9,10 +9,11 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { Menu, Folder, LogOut, X } from "lucide-react";
+import { Menu, Folder, LogOut, X, HelpCircle } from "lucide-react";
 import { useCategories } from "@/hooks/useArchives";
 import { useAuth } from "@/hooks/useAuth";
 import { CategoryManager } from "../categories/CategoryManager";
+import { Link } from "react-router-dom";
 
 interface MobileNavigationProps {
   selectedCategoryId?: string;
@@ -47,7 +48,7 @@ export function MobileNavigation({
       <DrawerContent className="glass border-white/20 max-h-[85vh]">
         <DrawerHeader className="border-b border-border/50">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <Link to="/" onClick={() => setOpen(false)} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
               <div className="h-8 w-8 rounded-lg overflow-hidden bg-white shadow-sm">
                 <img
                   src="/logo.png"
@@ -58,7 +59,7 @@ export function MobileNavigation({
               <DrawerTitle className="text-lg font-bold font-heading">
                 Momi
               </DrawerTitle>
-            </div>
+            </Link>
             <DrawerClose asChild>
               <Button variant="ghost" size="icon">
                 <X className="h-5 w-5" />
@@ -110,10 +111,16 @@ export function MobileNavigation({
           </div>
         </div>
 
-        <DrawerFooter className="border-t border-border/50">
-          <div className="text-xs text-muted-foreground truncate mb-2 text-center">
+        <DrawerFooter className="border-t border-border/50 space-y-2">
+          <div className="text-xs text-muted-foreground truncate mb-1 text-center">
             {user?.email}
           </div>
+          <Button variant="outline" className="w-full" asChild onClick={() => setOpen(false)}>
+            <Link to="/help">
+              <HelpCircle className="mr-2 h-4 w-4" />
+              도움말
+            </Link>
+          </Button>
           <Button
             variant="outline"
             className="w-full text-destructive hover:bg-destructive/10"
