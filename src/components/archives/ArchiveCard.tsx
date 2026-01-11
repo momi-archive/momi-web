@@ -7,6 +7,7 @@ import { useCategories } from "@/hooks/useArchives";
 import { Badge } from "@/components/ui/badge";
 import { ArchiveInput } from "./ArchiveInput"; // Import ArchiveInput
 import { useState } from "react";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 interface ArchiveCardProps {
   item: ArchiveItem;
@@ -18,6 +19,7 @@ export function ArchiveCard({ item, onDelete }: ArchiveCardProps) {
   const { data: categories } = useCategories();
   const category = categories?.find(c => c.id === item.category_id);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
   return (
     <>
@@ -84,9 +86,7 @@ export function ArchiveCard({ item, onDelete }: ArchiveCardProps) {
                     className="text-muted-foreground hover:text-destructive p-0 h-8 w-8"
                     onClick={(e) => {
                         e.stopPropagation();
-                        if(confirm('정말 삭제하시겠습니까?')) {
-                            onDelete?.(item.id);
-                        }
+                        setIsDeleteConfirmOpen(true);
                     }}
                 >
                 <Trash2 className="h-4 w-4" />
@@ -109,6 +109,15 @@ export function ArchiveCard({ item, onDelete }: ArchiveCardProps) {
             open={isEditOpen} 
             onOpenChange={setIsEditOpen} 
             trigger={<></>} // No trigger needed as distinct controlled Dialog
+        />
+
+        <ConfirmDialog
+            open={isDeleteConfirmOpen}
+            onOpenChange={setIsDeleteConfirmOpen}
+            title="기록 삭제"
+            description="이 기록을 정말 삭제하시겠습니까? 삭제된 기록은 복구할 수 없습니다."
+            confirmText="삭제하기"
+            onConfirm={() => onDelete?.(item.id)}
         />
     </>
   );

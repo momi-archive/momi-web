@@ -27,13 +27,18 @@ export function LoginPage() {
       <div className="max-w-md w-full mx-4">
         <div className="glass p-8 rounded-2xl border-white/20 space-y-8">
           {/* Header */}
-          <div className="text-center space-y-2">
-            <h1 className="text-3xl font-bold font-heading bg-gradient-to-r from-primary-600 via-primary-500 to-aurora-500 bg-clip-text text-transparent">
-              Momi
-            </h1>
-            <p className="text-muted-foreground text-sm">
-              나만의 기록 공간에 오신 것을 환영합니다
-            </p>
+          <div className="text-center space-y-4">
+            <div className="mx-auto h-20 w-20 rounded-2xl overflow-hidden bg-white shadow-glow border border-white/20 p-1">
+              <img src="/logo.png" alt="Momi Logo" className="h-full w-full object-cover rounded-xl" />
+            </div>
+            <div className="space-y-1">
+              <h1 className="text-4xl font-bold font-heading bg-gradient-to-r from-primary-600 via-primary-500 to-aurora-500 bg-clip-text text-transparent">
+                Momi
+              </h1>
+              <p className="text-muted-foreground text-sm font-medium">
+                영감을 기록하고, 나만의 공간을 채우다
+              </p>
+            </div>
           </div>
 
           {/* Google Login Button */}

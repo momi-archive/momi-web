@@ -16,6 +16,7 @@ import {
 import { Plus, Trash2, Edit2, Check, X, Settings } from "lucide-react";
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 export function CategoryManager() {
   const [isOpen, setIsOpen] = useState(false);
@@ -32,6 +33,9 @@ export function CategoryManager() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editColor, setEditColor] = useState("");
+
+  // Delete State
+  const [deletingCategory, setDeletingCategory] = useState<{ id: string, name: string } | null>(null);
 
   const handleAdd = async () => {
     if (!newCategoryName.trim()) return;
@@ -136,11 +140,7 @@ export function CategoryManager() {
                                     <Button 
                                         size="sm" 
                                         variant="ghost" 
-                                        onClick={() => {
-                                            if (confirm(`'${category.name}' 카테고리를 삭제하시겠습니까?\n포함된 항목은 '카테고리 없음'으로 변경됩니다.`)) {
-                                                deleteCategory.mutate(category.id);
-                                            }
-                                        }} 
+                                        onClick={() => setDeletingCategory({ id: category.id, name: category.name })} 
                                         className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                                     >
                                         <Trash2 className="h-3.5 w-3.5" />
@@ -153,6 +153,15 @@ export function CategoryManager() {
             </div>
         </div>
       </DialogContent>
+      
+      <ConfirmDialog
+        open={!!deletingCategory}
+        onOpenChange={(open) => !open && setDeletingCategory(null)}
+        title="카테고리 삭제"
+        description={`'${deletingCategory?.name}' 카테고리를 삭제하시겠습니까?\n포함된 항목은 '카테고리 없음'으로 변경됩니다.`}
+        confirmText="삭제하기"
+        onConfirm={() => deletingCategory && deleteCategory.mutate(deletingCategory.id)}
+      />
     </Dialog>
   );
 }
