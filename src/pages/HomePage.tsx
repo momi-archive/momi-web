@@ -2,16 +2,62 @@ import { ArchiveInput } from "@/components/archives/ArchiveInput";
 import { ArchiveGrid } from "@/components/archives/ArchiveGrid";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { MobileNavigation } from "@/components/layout/MobileNavigation";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { SearchInput } from "@/components/search-input";
+import { useSearchParams } from "react-router-dom";
 
 export function HomePage() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>();
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // 북마클릿에서 전달받은 데이터
+  const [bookmarkletData, setBookmarkletData] = useState<{
+    url?: string;
+    title?: string;
+  } | null>(null);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const bookmarkletProcessedRef = useRef(false);
+
+  // URL 파라미터 처리 (북마클릿)
+  useEffect(() => {
+    const addParam = searchParams.get("add");
+
+    // 이미 처리했거나 add 파라미터가 없으면 스킵
+    if (bookmarkletProcessedRef.current || addParam !== "true") {
+      return;
+    }
+
+    // 중복 실행 방지
+    bookmarkletProcessedRef.current = true;
+
+    const urlParam = searchParams.get("url");
+    const titleParam = searchParams.get("title");
+
+    setBookmarkletData({
+      url: urlParam || undefined,
+      title: titleParam || undefined,
+    });
+    setIsAddDialogOpen(true);
+
+    // URL 파라미터 제거 (지연 실행으로 상태 업데이트 충돌 방지)
+    setTimeout(() => {
+      setSearchParams({}, { replace: true });
+    }, 0);
+  }, [searchParams, setSearchParams]);
 
   const handleArchiveAdded = () => {
     // Refresh logic handled by React Query invalidation
+    // 북마클릿 데이터 초기화
+    setBookmarkletData(null);
+  };
+
+  const handleDialogOpenChange = (open: boolean) => {
+    setIsAddDialogOpen(open);
+    if (!open) {
+      setBookmarkletData(null);
+    }
   };
 
   return (
@@ -47,7 +93,13 @@ export function HomePage() {
 
             {/* Add Button */}
             <div className="max-w-sm">
-                <ArchiveInput onSuccess={handleArchiveAdded} />
+                <ArchiveInput
+                  open={isAddDialogOpen}
+                  onOpenChange={handleDialogOpenChange}
+                  onSuccess={handleArchiveAdded}
+                  defaultUrl={bookmarkletData?.url}
+                  defaultTitle={bookmarkletData?.title}
+                />
             </div>
 
             {/* Grid Section */}

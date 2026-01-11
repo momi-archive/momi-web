@@ -48,9 +48,13 @@ interface ArchiveInputProps {
   onOpenChange?: (open: boolean) => void;
   trigger?: React.ReactNode;
   onSuccess?: () => void;
+  /** 북마클릿에서 전달받은 기본 URL */
+  defaultUrl?: string;
+  /** 북마클릿에서 전달받은 기본 제목 */
+  defaultTitle?: string;
 }
 
-export function ArchiveInput({ initialData, open, onOpenChange, trigger, onSuccess }: ArchiveInputProps) {
+export function ArchiveInput({ initialData, open, onOpenChange, trigger, onSuccess, defaultUrl, defaultTitle }: ArchiveInputProps) {
   const [internalOpen, setInternalOpen] = useState(false);
   const isControlled = open !== undefined && onOpenChange !== undefined;
 
@@ -87,16 +91,21 @@ export function ArchiveInput({ initialData, open, onOpenChange, trigger, onSucce
           imageUrl: initialData.image_url || "",
         });
       } else {
+        // 북마클릿에서 전달받은 기본값 사용
         form.reset({
-          url: "",
-          title: "",
+          url: defaultUrl || "",
+          title: defaultTitle || "",
           content: "",
           categoryId: undefined,
           imageUrl: "",
         });
+        // 기본 URL이 있으면 메타데이터 자동 수집
+        if (defaultUrl) {
+          fetchMetadata(defaultUrl);
+        }
       }
     }
-  }, [initialData, isOpen, form]);
+  }, [initialData, isOpen, form, defaultUrl, defaultTitle]);
 
   const fetchMetadata = async (url: string) => {
     if (!url || !url.startsWith("http")) return;

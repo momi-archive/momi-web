@@ -3,6 +3,7 @@ import { Folder, LogOut } from "lucide-react";
 import { useCategories } from "@/hooks/useArchives";
 import { CategoryManager } from "../categories/CategoryManager";
 import { useAuth } from "@/hooks/useAuth";
+import { BookmarkletGuide } from "../BookmarkletGuide";
 
 interface SidebarProps {
   selectedCategoryId?: string;
@@ -68,12 +69,13 @@ export function Sidebar({ selectedCategoryId, onSelectCategory }: SidebarProps) 
       </div>
 
       {/* User & Logout */}
-      <div className="px-3 py-2 border-t border-border/50">
+      <div className="px-3 py-2 border-t border-border/50 space-y-1">
         <div className="mb-2 px-2 text-xs text-muted-foreground truncate">
           {user?.email}
         </div>
-        <Button 
-          variant="ghost" 
+        <BookmarkletGuide />
+        <Button
+          variant="ghost"
           className="w-full justify-start text-muted-foreground hover:text-destructive"
           onClick={() => signOut()}
         >

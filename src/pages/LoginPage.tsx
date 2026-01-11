@@ -1,18 +1,22 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 
 export function LoginPage() {
   const { user, loading, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (user) {
-      navigate("/");
+      // ProtectedRoute에서 전달받은 원본 URL로 리다이렉트 (북마클릿 파라미터 보존)
+      const from = location.state?.from;
+      const redirectTo = from ? from.pathname + (from.search || "") : "/";
+      navigate(redirectTo, { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, navigate, location.state]);
 
   if (loading) {
     return (
