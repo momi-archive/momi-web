@@ -43,6 +43,7 @@ docs/adr/          # 아키텍처 결정 기록
 
 - Conventional Commits 스타일 (한국어)
 - 예: `feat(auth): 로그인 기능 추가`
+- **Co-Authored-By 태그 사용 금지** - 커밋 메시지에 AI 작성자 표시 붙이지 않음
 
 ## 명령어
 

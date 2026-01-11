@@ -14,7 +14,7 @@ export function Sidebar({ selectedCategoryId, onSelectCategory }: SidebarProps) 
   const { signOut, user } = useAuth();
 
   return (
-    <div className="w-64 space-y-6 py-4 hidden md:flex md:flex-col pl-2 h-screen">
+    <div className="w-64 space-y-6 py-4 hidden md:flex md:flex-col pl-2 sticky top-0 h-screen overflow-y-auto">
       <div className="flex-1 space-y-6">
         <div className="px-6 py-4 flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl overflow-hidden bg-white shadow-sm border border-border/40 flex-shrink-0">
