@@ -1,7 +1,7 @@
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArchiveItem } from "@/hooks/useArchives";
-import { ExternalLink, FileText, Link as LinkIcon, MoreHorizontal, Trash2, Edit2 } from "lucide-react";
+import { ExternalLink, FileText, Link as LinkIcon, Trash2, Edit2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { useCategories } from "@/hooks/useArchives";
 import { Badge } from "@/components/ui/badge";
