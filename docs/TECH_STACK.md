@@ -18,10 +18,12 @@
   - **이유**: 빠르고 효율적인 설치 속도와 디스크 공간 절약 (Symlink 기반).
 
 ## 3. 백엔드 (Backend) & 데이터베이스 (Database)
-- **Language**: [Kotlin](https://kotlinlang.org/)
-- **Type**: RESTful API Server
-  - **이유**: 별도의 백엔드 구축을 통한 API 연동. 유연한 비즈니스 로직 구현 가능.
-- **Database**: 추후 결정 (Backend에서 관리)
+- **Platform**: [Supabase](https://supabase.com/)
+- **구성 요소**:
+  - **Database**: PostgreSQL (Supabase 내장)
+  - **Authentication**: Supabase Auth (이메일/비밀번호, 소셜 로그인 등)
+  - **Storage**: Supabase Storage (이미지, 파일 저장)
+- **이유**: 백엔드 구축 비용 절감, 빠른 개발 속도, 강력한 관리 도구 제공, 넉넉한 무료 티어(DB 500MB, Storage 1GB).
 
 ## 4. 모바일 (Mobile)
 - **Strategy**: PWA (Progressive Web App) 및 반응형 웹
@@ -45,6 +47,6 @@
 ```mermaid
 graph TD
     User[사용자] -->|Web/Mobile Browser| Client[React SPA (PWA)]
-    Client -->|API Call (TanStack Query)| API[Kotlin Backend API]
-    API --> DB[(Database)]
+    Client -->|SDK / API Call| Supabase[Supabase (DB/Auth/Storage)]
+    Supabase --> DB[(PostgreSQL)]
 ```
