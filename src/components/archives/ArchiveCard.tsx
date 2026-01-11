@@ -22,6 +22,15 @@ export function ArchiveCard({ item, onDelete }: ArchiveCardProps) {
   return (
     <>
         <Card className="glass group hover:shadow-lg transition-all duration-300 flex flex-col h-full overflow-hidden border-border/50 bg-card/60 hover:-translate-y-1">
+        {isLink && item.image_url && (
+            <div className="aspect-video w-full overflow-hidden border-b border-border/50 bg-muted/30">
+                <img 
+                    src={item.image_url} 
+                    alt={item.title || "Preview"} 
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+            </div>
+        )}
         <CardHeader className="p-4 pb-2 space-y-2">
             <div className="flex justify-between items-start gap-2">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">

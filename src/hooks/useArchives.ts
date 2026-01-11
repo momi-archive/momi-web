@@ -42,16 +42,19 @@ export function useAddCategory() {
 
   return useMutation({
     mutationFn: async (category: { name: string; color: string }) => {
-      const { error } = await supabase.from("categories").insert([category]);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not authenticated");
+      
+      const { error } = await supabase.from("categories").insert([{ ...category, user_id: user.id }]);
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Category created");
+      toast.success("카테고리가 생성되었습니다.");
       queryClient.invalidateQueries({ queryKey: ["categories"] });
     },
     onError: (error) => {
       console.error(error);
-      toast.error("Failed to create category");
+      toast.error("생성에 실패했습니다.");
     },
   });
 }
@@ -141,16 +144,19 @@ export function useAddArchive() {
 
   return useMutation({
     mutationFn: async (newItem: Partial<ArchiveItem>) => {
-      const { error } = await supabase.from("archives").insert([newItem]);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not authenticated");
+      
+      const { error} = await supabase.from("archives").insert([{ ...newItem, user_id: user.id }]);
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Item archived");
+      toast.success("기록이 추가되었습니다.");
       queryClient.invalidateQueries({ queryKey: ["archives"] });
     },
     onError: (error) => {
       console.error(error);
-      toast.error("Failed to archive item");
+      toast.error("추가에 실패했습니다.");
     },
   });
 }

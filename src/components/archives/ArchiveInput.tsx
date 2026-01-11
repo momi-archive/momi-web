@@ -32,6 +32,7 @@ const formSchema = z.object({
   title: z.string().optional(),
   content: z.string().optional(),
   categoryId: z.string().optional(),
+  imageUrl: z.string().optional(),
 }).refine((data) => {
     if (data.type === "link" && !data.url) return false;
     if (data.type === "memo" && !data.content) return false;
@@ -60,6 +61,7 @@ export function ArchiveInput({ initialData, open, onOpenChange, trigger, onSucce
   const addArchive = useAddArchive();
   const updateArchive = useUpdateArchive();
   const { data: categories } = useCategories();
+  const [isScraping, setIsScraping] = useState(false);
 
   const isEditMode = !!initialData;
 
@@ -71,6 +73,7 @@ export function ArchiveInput({ initialData, open, onOpenChange, trigger, onSucce
       title: "",
       content: "",
       categoryId: undefined,
+      imageUrl: "",
     },
   });
 
@@ -92,10 +95,41 @@ export function ArchiveInput({ initialData, open, onOpenChange, trigger, onSucce
                 title: "",
                 content: "",
                 categoryId: undefined,
+                imageUrl: "",
             });
         }
     }
   }, [initialData, isOpen, form]);
+
+  const fetchMetadata = async (url: string) => {
+    if (!url || !url.startsWith("http")) return;
+    
+    setIsScraping(true);
+    try {
+      const response = await fetch("/api/extract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.title && !form.getValues("title")) {
+          form.setValue("title", data.title);
+        }
+        if (data.description && !form.getValues("content")) {
+          form.setValue("content", data.description);
+        }
+        if (data.image) {
+          form.setValue("imageUrl", data.image);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch metadata:", error);
+    } finally {
+      setIsScraping(false);
+    }
+  };
 
   const activeType = form.watch("type");
 
@@ -107,6 +141,7 @@ export function ArchiveInput({ initialData, open, onOpenChange, trigger, onSucce
         content: values.content,
         title: values.title || (values.type === "link" ? "새로운 링크" : "새로운 메모"),
         category_id: values.categoryId === "none" ? undefined : values.categoryId,
+        image_url: values.imageUrl,
       };
 
       if (isEditMode && initialData) {
@@ -223,18 +258,54 @@ export function ArchiveInput({ initialData, open, onOpenChange, trigger, onSucce
                              링크 주소
                              <span className="text-red-500">*</span>
                          </Label>
-                         <FormControl>
-                           <Input
-                             placeholder="https://example.com"
-                             className="bg-white/50"
-                             {...field}
-                           />
-                         </FormControl>
-                         <FormMessage />
-                       </FormItem>
-                     )}
-                   />
-                )}
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                placeholder="https://example.com"
+                                className="bg-white/50 pr-20"
+                                {...field}
+                                onBlur={(e) => {
+                                  field.onBlur();
+                                  if (!isEditMode) fetchMetadata(e.target.value);
+                                }}
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                disabled={isScraping || !field.value}
+                                onClick={() => fetchMetadata(field.value || "")}
+                                className="absolute right-1 top-1 h-8 text-xs text-primary hover:text-primary/80"
+                              >
+                                {isScraping ? "가져오는 중..." : "정보 불러오기"}
+                              </Button>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                 )}
+
+                 {/* Image Preview (Link Only) */}
+                 {activeType === "link" && form.watch("imageUrl") && (
+                   <div className="relative h-32 w-full rounded-xl overflow-hidden border border-border/50 bg-muted/30">
+                     <img 
+                       src={form.watch("imageUrl")} 
+                       alt="Preview" 
+                       className="h-full w-full object-cover"
+                     />
+                     <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-1 right-1 h-6 w-6 p-0 rounded-full"
+                        onClick={() => form.setValue("imageUrl", "")}
+                     >
+                        ×
+                     </Button>
+                   </div>
+                 )}
 
                 {/* Title (Optional) */}
                  <FormField
