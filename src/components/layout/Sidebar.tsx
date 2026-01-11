@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { Folder, Plus } from "lucide-react";
+import { Folder } from "lucide-react";
 import { useCategories } from "@/hooks/useArchives";
+import { CategoryManager } from "../categories/CategoryManager";
 
 interface SidebarProps {
   selectedCategoryId?: string;
@@ -47,9 +48,7 @@ export function Sidebar({ selectedCategoryId, onSelectCategory }: SidebarProps) 
             </Button>
           ))}
           
-          <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-primary">
-            <Plus className="mr-2 h-4 w-4" /> 카테고리 추가
-          </Button>
+          <CategoryManager />
         </div>
       </div>
     </div>

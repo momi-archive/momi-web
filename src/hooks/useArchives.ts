@@ -56,6 +56,55 @@ export function useAddCategory() {
   });
 }
 
+export function useUpdateCategory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string } & Partial<Category>) => {
+      const { error } = await supabase.from("categories").update(updates).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Category updated");
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: ["archives"] }); // Update archives to reflect new colors/names
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error("Failed to update category");
+    },
+  });
+}
+
+export function useDeleteCategory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      // First, unassign archived items from this category
+      const { error: unassignError } = await supabase
+        .from("archives")
+        .update({ category_id: null })
+        .eq("category_id", id);
+        
+      if (unassignError) throw unassignError;
+
+      const { error } = await supabase.from("categories").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Category deleted");
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: ["archives"] });
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error("Failed to delete category");
+    },
+  });
+}
+
+
 // --- Archives Hooks ---
 
 export function useArchives(categoryId?: string) {
