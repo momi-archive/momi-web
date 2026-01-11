@@ -18,7 +18,7 @@ export function Sidebar({ selectedCategoryId, onSelectCategory }: SidebarProps) 
     <div className="w-64 space-y-6 py-4 hidden md:flex md:flex-col pl-2 sticky top-0 h-screen overflow-y-auto">
       <div className="flex-1 space-y-6">
         <Link to="/" className="px-6 py-4 flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
-          <div className="h-10 w-10 rounded-xl overflow-hidden bg-white shadow-sm border border-border/40 flex-shrink-0">
+          <div className="h-10 w-10 rounded-xl overflow-hidden bg-card shadow-sm border border-border/40 flex-shrink-0">
             <img src="/logo.png" alt="Momi Logo" className="h-full w-full object-cover" />
           </div>
           <div>

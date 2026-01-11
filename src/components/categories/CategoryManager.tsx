@@ -87,7 +87,7 @@ export function CategoryManager() {
                         placeholder="카테고리 이름" 
                         value={newCategoryName}
                         onChange={(e) => setNewCategoryName(e.target.value)}
-                        className="h-9 bg-white/50"
+                        className="h-9 bg-background/50"
                         onKeyDown={(e) => e.key === "Enter" && handleAdd()}
                     />
                     <Button size="sm" onClick={handleAdd} disabled={!newCategoryName.trim()}>
@@ -112,7 +112,7 @@ export function CategoryManager() {
                                 <Input 
                                     value={editName}
                                     onChange={(e) => setEditName(e.target.value)}
-                                    className="h-8 bg-white/50"
+                                    className="h-8 bg-background/50"
                                     autoFocus
                                     onKeyDown={(e) => {
                                         if(e.key === "Enter") saveEdit();

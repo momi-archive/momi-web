@@ -45,11 +45,11 @@ export function MobileNavigation({
         </Button>
       </DrawerTrigger>
 
-      <DrawerContent className="glass border-white/20 max-h-[85vh]">
+      <DrawerContent className="glass border-border/20 max-h-[85vh]">
         <DrawerHeader className="border-b border-border/50">
           <div className="flex items-center justify-between">
             <Link to="/" onClick={() => setOpen(false)} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
-              <div className="h-8 w-8 rounded-lg overflow-hidden bg-white shadow-sm">
+              <div className="h-8 w-8 rounded-lg overflow-hidden bg-card shadow-sm">
                 <img
                   src="/logo.png"
                   alt="Momi"

@@ -32,8 +32,8 @@ export function ArchiveGrid({ selectedCategoryId, searchQuery }: ArchiveGridProp
 
   if (!archives || archives.length === 0) {
     return (
-      <div className="text-center py-20 text-muted-foreground border-2 border-dashed rounded-xl bg-white/50">
-        <p className="text-xl font-medium mb-2">아직 기록된 내용이 없습니다</p>
+      <div className="text-center py-20 text-muted-foreground border-2 border-dashed border-border rounded-xl bg-muted/30">
+        <p className="text-xl font-medium mb-2 text-foreground/70">아직 기록된 내용이 없습니다</p>
         <p className="text-sm">위의 '기록 추가하기' 버튼을 눌러보세요.</p>
       </div>
     );

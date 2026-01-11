@@ -32,7 +32,7 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[400px] glass border-white/20">
+      <DialogContent className="sm:max-w-[400px] glass border-border/20">
         <DialogHeader>
           <div className="flex items-center gap-3 mb-2">
             <div className={`p-2 rounded-full ${variant === "danger" ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"}`}>

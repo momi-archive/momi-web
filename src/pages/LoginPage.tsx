@@ -29,10 +29,10 @@ export function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="max-w-md w-full mx-4">
-        <div className="glass p-8 rounded-2xl border-white/20 space-y-8">
+        <div className="glass p-8 rounded-2xl border-border/20 space-y-8">
           {/* Header */}
           <div className="text-center space-y-4">
-            <div className="mx-auto h-20 w-20 rounded-2xl overflow-hidden bg-white shadow-glow border border-white/20 p-1">
+            <div className="mx-auto h-20 w-20 rounded-2xl overflow-hidden bg-card shadow-glow border border-border/20 p-1">
               <img src="/logo.png" alt="Momi Logo" className="h-full w-full object-cover rounded-xl" />
             </div>
             <div className="space-y-1">

@@ -81,7 +81,7 @@ export function QuickMemoDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[480px] glass border-white/20">
+      <DialogContent className="sm:max-w-[480px] glass border-border/20">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-lg font-heading">
             <ClipboardPaste className="h-5 w-5 text-primary" />

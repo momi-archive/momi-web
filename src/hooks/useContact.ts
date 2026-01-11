@@ -12,6 +12,21 @@ interface ContactRequest {
 }
 
 async function sendContact(data: ContactRequest) {
+  // 1. 일일 한도 체크
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const { count } = await supabase
+    .from("contact_logs")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", data.userId)
+    .gte("created_at", today.toISOString());
+
+  if ((count ?? 0) >= DAILY_LIMIT) {
+    throw new Error(`일일 문의 한도(${DAILY_LIMIT}회)를 초과했습니다. 내일 다시 시도해주세요.`);
+  }
+
+  // 2. 이메일 전송
   const response = await fetch("/api/contact", {
     method: "POST",
     headers: {
@@ -25,7 +40,20 @@ async function sendContact(data: ContactRequest) {
     throw new Error(error.error || "문의 전송에 실패했습니다");
   }
 
-  return response.json();
+  // 3. 로그 저장 (프론트엔드에서 직접 - RLS 정책 통과)
+  const { error: logError } = await supabase
+    .from("contact_logs")
+    .insert({
+      user_id: data.userId,
+      user_email: data.email,
+    });
+
+  if (logError) {
+    console.error("Failed to save contact log:", logError);
+  }
+
+  const remaining = DAILY_LIMIT - (count ?? 0) - 1;
+  return { success: true, remaining };
 }
 
 async function getTodayContactCount(userId: string): Promise<number> {

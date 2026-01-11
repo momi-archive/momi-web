@@ -193,8 +193,8 @@ export function ArchiveInput({ initialData, open, onOpenChange, trigger, onSucce
           )
         )}
       </DialogTrigger>
-      <DialogContent className="w-[95vw] sm:max-w-[560px] md:max-w-[640px] glass border-white/20 p-0 overflow-hidden gap-0 max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="p-6 pb-4 border-b border-white/10">
+      <DialogContent className="w-[95vw] sm:max-w-[560px] md:max-w-[640px] glass border-border/20 p-0 overflow-hidden gap-0 max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="p-6 pb-4 border-b border-border/10">
           <DialogTitle className="text-xl font-heading flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
             {isEditMode ? "기록 수정하기" : "기록 남기기"}
@@ -355,7 +355,7 @@ export function ArchiveInput({ initialData, open, onOpenChange, trigger, onSucce
               )}
             />
 
-            <DialogFooter className="pt-4 border-t border-white/10">
+            <DialogFooter className="pt-4 border-t border-border/10">
               <div className="flex w-full gap-3">
                 <Button
                   type="button"

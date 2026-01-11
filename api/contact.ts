@@ -1,11 +1,8 @@
 import { Resend } from 'resend';
-import { createClient } from '@supabase/supabase-js';
 
 export const config = {
   runtime: 'edge',
 };
-
-const DAILY_LIMIT = 3;
 
 export default async function handler(req: Request) {
   if (req.method !== 'POST') {
@@ -16,10 +13,10 @@ export default async function handler(req: Request) {
   }
 
   try {
-    const { email, subject, content, userId } = await req.json();
+    const { email, subject, content } = await req.json();
 
-    if (!email || !subject || !content || !userId) {
-      return new Response(JSON.stringify({ error: 'Email, subject, content, and userId are required' }), {
+    if (!email || !subject || !content) {
+      return new Response(JSON.stringify({ error: 'Email, subject, and content are required' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -27,44 +24,10 @@ export default async function handler(req: Request) {
 
     const resendApiKey = process.env.RESEND_API_KEY;
     const contactEmail = process.env.CONTACT_EMAIL;
-    const supabaseUrl = process.env.VITE_SUPABASE_URL;
-    const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
 
-    if (!resendApiKey || !contactEmail || !supabaseUrl || !supabaseKey) {
+    if (!resendApiKey || !contactEmail) {
       return new Response(JSON.stringify({ error: 'Server configuration error' }), {
         status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    // Supabase 클라이언트 생성
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    // 오늘 시작 시간 (UTC 기준)
-    const today = new Date();
-    today.setUTCHours(0, 0, 0, 0);
-
-    // 오늘 문의 횟수 조회
-    const { count, error: countError } = await supabase
-      .from('contact_logs')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .gte('created_at', today.toISOString());
-
-    if (countError) {
-      console.error('Count error:', countError);
-      return new Response(JSON.stringify({ error: 'Failed to check daily limit' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    if ((count ?? 0) >= DAILY_LIMIT) {
-      return new Response(JSON.stringify({
-        error: `일일 문의 한도(${DAILY_LIMIT}회)를 초과했습니다. 내일 다시 시도해주세요.`,
-        code: 'DAILY_LIMIT_EXCEEDED'
-      }), {
-        status: 429,
         headers: { 'Content-Type': 'application/json' },
       });
     }
@@ -102,24 +65,8 @@ export default async function handler(req: Request) {
       });
     }
 
-    // 문의 로그 저장
-    const { error: logError } = await supabase
-      .from('contact_logs')
-      .insert({
-        user_id: userId,
-        user_email: email,
-      });
-
-    if (logError) {
-      console.error('Log error:', logError);
-      // 로그 저장 실패해도 이메일은 발송됐으므로 성공 처리
-    }
-
-    // 남은 횟수 계산
-    const remaining = DAILY_LIMIT - (count ?? 0) - 1;
-
     return new Response(
-      JSON.stringify({ success: true, remaining }),
+      JSON.stringify({ success: true }),
       {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
