@@ -1,6 +1,7 @@
 import { HomePage } from "@/pages/HomePage";
 import { LoginPage } from "@/pages/LoginPage";
 import { HelpPage } from "@/pages/HelpPage";
+import { ContactPage } from "@/pages/ContactPage";
 import { DesignSystem } from "@/pages/DesignSystem";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
@@ -17,6 +18,14 @@ function App() {
           element={
             <ProtectedRoute>
               <HelpPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/contact"
+          element={
+            <ProtectedRoute>
+              <ContactPage />
             </ProtectedRoute>
           }
         />

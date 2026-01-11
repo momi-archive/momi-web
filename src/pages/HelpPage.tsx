@@ -51,7 +51,7 @@ export function HelpPage() {
     <div className="min-h-screen bg-background">
       <div className="max-w-2xl mx-auto p-6 space-y-8">
         {/* 헤더 */}
-        <div className="space-y-4">
+        <div className="space-y-8">
           <Link to="/">
             <Button variant="ghost" size="sm" className="gap-2">
               <ArrowLeft className="h-4 w-4" />
@@ -164,21 +164,17 @@ export function HelpPage() {
         {/* 추가 팁 */}
         <section className="space-y-4">
           <h2 className="text-xl font-semibold font-heading">추가 팁</h2>
-          <Card className="glass border-border/50">
-            <CardContent className="pt-6">
-              <ul className="text-sm text-muted-foreground space-y-2">
-                <li>
-                  <strong className="text-foreground">검색:</strong> 상단 검색창에서 제목과 내용을 동시에 검색할 수 있습니다.
-                </li>
-                <li>
-                  <strong className="text-foreground">카테고리:</strong> 사이드바에서 카테고리를 만들고 기록을 분류하세요.
-                </li>
-                <li>
-                  <strong className="text-foreground">마크다운:</strong> 메모 작성 시 마크다운 문법을 사용할 수 있습니다.
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
+          <ul className="text-sm text-muted-foreground space-y-2">
+            <li>
+              <strong className="text-foreground">검색:</strong> 상단 검색창에서 제목과 내용을 동시에 검색할 수 있습니다.
+            </li>
+            <li>
+              <strong className="text-foreground">카테고리:</strong> 사이드바에서 카테고리를 만들고 기록을 분류하세요.
+            </li>
+            <li>
+              <strong className="text-foreground">마크다운:</strong> 메모 작성 시 마크다운 문법을 사용할 수 있습니다.
+            </li>
+          </ul>
         </section>
       </div>
     </div>

@@ -25,7 +25,7 @@ export function ArchiveCard({ item, onDelete, searchQuery }: ArchiveCardProps) {
 
   return (
     <>
-        <Card className="glass group hover:shadow-lg transition-all duration-300 flex flex-col h-full overflow-hidden border-border/50 bg-card/60 hover:-translate-y-1">
+        <Card className="glass group hover:shadow-lg transition-[transform,box-shadow] duration-300 flex flex-col h-full overflow-hidden border-border/50 bg-card/60 hover:-translate-y-1">
         {isLink && item.image_url && (
             <div className="aspect-video w-full overflow-hidden border-b border-border/50 bg-muted/30">
                 <img 
@@ -55,7 +55,7 @@ export function ArchiveCard({ item, onDelete, searchQuery }: ArchiveCardProps) {
                     </Badge>
                 )}
             </div>
-            <h3 className="font-bold text-lg leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+            <h3 className="font-bold text-lg leading-tight line-clamp-2 group-hover:text-primary">
                 {searchQuery ? highlightText(item.title || "Untitled", searchQuery) : (item.title || "Untitled")}
             </h3>
         </CardHeader>

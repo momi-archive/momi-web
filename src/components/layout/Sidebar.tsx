@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Folder, LogOut, HelpCircle } from "lucide-react";
+import { Folder, LogOut, HelpCircle, Mail } from "lucide-react";
 import { useCategories } from "@/hooks/useArchives";
 import { CategoryManager } from "../categories/CategoryManager";
 import { useAuth } from "@/hooks/useAuth";
@@ -77,6 +77,12 @@ export function Sidebar({ selectedCategoryId, onSelectCategory }: SidebarProps) 
           <Link to="/help">
             <HelpCircle className="mr-2 h-4 w-4" />
             도움말
+          </Link>
+        </Button>
+        <Button variant="ghost" className="w-full justify-start font-medium text-muted-foreground hover:text-foreground" asChild>
+          <Link to="/contact">
+            <Mail className="mr-2 h-4 w-4" />
+            문의하기
           </Link>
         </Button>
         <Button

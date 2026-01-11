@@ -9,7 +9,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { Menu, Folder, LogOut, X, HelpCircle } from "lucide-react";
+import { Menu, Folder, LogOut, X, HelpCircle, Mail } from "lucide-react";
 import { useCategories } from "@/hooks/useArchives";
 import { useAuth } from "@/hooks/useAuth";
 import { CategoryManager } from "../categories/CategoryManager";
@@ -119,6 +119,12 @@ export function MobileNavigation({
             <Link to="/help">
               <HelpCircle className="mr-2 h-4 w-4" />
               도움말
+            </Link>
+          </Button>
+          <Button variant="outline" className="w-full" asChild onClick={() => setOpen(false)}>
+            <Link to="/contact">
+              <Mail className="mr-2 h-4 w-4" />
+              문의하기
             </Link>
           </Button>
           <Button
