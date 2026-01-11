@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Plus, Link as LinkIcon, FileText } from "lucide-react";
+import { Plus, Link as LinkIcon, Loader2, X, Sparkles } from "lucide-react";
+import { MarkdownEditor } from "@/components/ui/markdown-editor";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -24,37 +24,36 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { useAddArchive, useUpdateArchive, useCategories, ArchiveItem } from "@/hooks/useArchives";
-import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
-  type: z.enum(["link", "memo"]),
   url: z.string().optional(),
   title: z.string().optional(),
   content: z.string().optional(),
   categoryId: z.string().optional(),
   imageUrl: z.string().optional(),
 }).refine((data) => {
-    if (data.type === "link" && !data.url) return false;
-    if (data.type === "memo" && !data.content) return false;
-    return true;
+  // URL 또는 내용 중 하나는 반드시 있어야 함
+  if (!data.url && !data.content) {
+    return false;
+  }
+  return true;
 }, {
-    message: "필수 항목을 입력해주세요",
-    path: ["url"], 
+  message: "링크 또는 내용을 입력해주세요",
+  path: ["content"],
 });
 
 interface ArchiveInputProps {
-  initialData?: ArchiveItem; // If provided, strictly edit mode
+  initialData?: ArchiveItem;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  trigger?: React.ReactNode; 
+  trigger?: React.ReactNode;
   onSuccess?: () => void;
 }
 
 export function ArchiveInput({ initialData, open, onOpenChange, trigger, onSuccess }: ArchiveInputProps) {
-  // If controlled (passed props), use them; otherwise local state
   const [internalOpen, setInternalOpen] = useState(false);
   const isControlled = open !== undefined && onOpenChange !== undefined;
-  
+
   const isOpen = isControlled ? open : internalOpen;
   const setIsOpen = isControlled ? onOpenChange : setInternalOpen;
 
@@ -68,7 +67,6 @@ export function ArchiveInput({ initialData, open, onOpenChange, trigger, onSucce
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      type: "link",
       url: "",
       title: "",
       content: "",
@@ -80,30 +78,29 @@ export function ArchiveInput({ initialData, open, onOpenChange, trigger, onSucce
   // Reset form when initialData changes or dialog opens
   useEffect(() => {
     if (isOpen) {
-        if (initialData) {
-            form.reset({
-                type: initialData.type,
-                url: initialData.url || "",
-                title: initialData.title || "",
-                content: initialData.content || "",
-                categoryId: initialData.category_id || "none",
-            });
-        } else {
-            form.reset({
-                type: "link",
-                url: "",
-                title: "",
-                content: "",
-                categoryId: undefined,
-                imageUrl: "",
-            });
-        }
+      if (initialData) {
+        form.reset({
+          url: initialData.url || "",
+          title: initialData.title || "",
+          content: initialData.content || "",
+          categoryId: initialData.category_id || "none",
+          imageUrl: initialData.image_url || "",
+        });
+      } else {
+        form.reset({
+          url: "",
+          title: "",
+          content: "",
+          categoryId: undefined,
+          imageUrl: "",
+        });
+      }
     }
   }, [initialData, isOpen, form]);
 
   const fetchMetadata = async (url: string) => {
     if (!url || !url.startsWith("http")) return;
-    
+
     setIsScraping(true);
     try {
       const response = await fetch("/api/extract", {
@@ -111,7 +108,7 @@ export function ArchiveInput({ initialData, open, onOpenChange, trigger, onSucce
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url }),
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         if (data.title && !form.getValues("title")) {
@@ -131,17 +128,21 @@ export function ArchiveInput({ initialData, open, onOpenChange, trigger, onSucce
     }
   };
 
-  const activeType = form.watch("type");
+  const watchUrl = form.watch("url");
+  const watchImageUrl = form.watch("imageUrl");
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
+      // URL이 있으면 링크, 없으면 메모로 자동 판단
+      const type: "link" | "memo" = values.url ? "link" : "memo";
+
       const payload = {
-        type: values.type,
-        url: values.url,
+        type,
+        url: values.url || undefined,
         content: values.content,
-        title: values.title || (values.type === "link" ? "새로운 링크" : "새로운 메모"),
+        title: values.title || (type === "link" ? "새로운 링크" : "새로운 메모"),
         category_id: values.categoryId === "none" ? undefined : values.categoryId,
-        image_url: values.imageUrl,
+        image_url: values.imageUrl || undefined,
       };
 
       if (isEditMode && initialData) {
@@ -157,218 +158,201 @@ export function ArchiveInput({ initialData, open, onOpenChange, trigger, onSucce
     }
   }
 
-  // Handle Type Selection
-  const setType = (type: "link" | "memo") => {
-    form.setValue("type", type);
-  };
-  
   const isPending = addArchive.isPending || updateArchive.isPending;
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {trigger || (
-            <Button
+          <Button
             size="lg"
             className="w-full h-14 text-lg bg-gradient-to-r from-primary-600 to-aurora-500 hover:opacity-90 shadow-lg animate-fade-in-up text-white"
-            >
+          >
             <Plus className="mr-2 h-5 w-5" /> 기록 추가하기
-            </Button>
+          </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] glass border-white/20 p-0 overflow-hidden gap-0">
-        <DialogHeader className="p-6 pb-2">
-          <DialogTitle className="text-xl font-heading">
-             {isEditMode ? "기록 수정하기" : "기록 남기기"}
+      <DialogContent className="w-[95vw] sm:max-w-[560px] md:max-w-[640px] glass border-white/20 p-0 overflow-hidden gap-0 max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="p-6 pb-4 border-b border-white/10">
+          <DialogTitle className="text-xl font-heading flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-primary" />
+            {isEditMode ? "기록 수정하기" : "기록 남기기"}
           </DialogTitle>
         </DialogHeader>
-        
+
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-6 pt-2">
-             
-             {/* Type Selection */}
-             <div className="space-y-2">
-                <Label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">유형 선택</Label>
-                <div className="grid grid-cols-2 gap-3">
-                    <div 
-                        onClick={() => setType("link")}
-                        className={cn(
-                            "cursor-pointer rounded-xl border-2 p-3 flex flex-col items-center justify-center gap-2 transition-all hover:bg-accent/50",
-                            activeType === "link" ? "border-primary bg-primary/5 text-primary" : "border-transparent bg-secondary/50 text-muted-foreground hover:border-border"
-                        )}
-                    >
-                        <LinkIcon className="h-5 w-5" />
-                        <span className="font-semibold text-sm">링크</span>
-                    </div>
-                    <div 
-                        onClick={() => setType("memo")}
-                        className={cn(
-                            "cursor-pointer rounded-xl border-2 p-3 flex flex-col items-center justify-center gap-2 transition-all hover:bg-accent/50",
-                            activeType === "memo" ? "border-primary bg-primary/5 text-primary" : "border-transparent bg-secondary/50 text-muted-foreground hover:border-border"
-                        )}
-                    >
-                        <FileText className="h-5 w-5" />
-                        <span className="font-semibold text-sm">메모</span>
-                    </div>
-                </div>
-             </div>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 p-6">
 
-             <div className="space-y-4">
-                {/* Category */}
-                <FormField
-                control={form.control}
-                name="categoryId"
-                render={({ field }) => (
-                    <FormItem>
-                    <Label className="text-foreground font-medium flex items-center gap-1">
-                         카테고리 
-                         <span className="text-red-500">*</span>
-                    </Label>
-                    <Select onValueChange={field.onChange} value={field.value || "none"}>
-                        <FormControl>
-                        <SelectTrigger className="bg-white/50 border-input">
-                            <SelectValue placeholder="카테고리를 선택하세요" />
-                        </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                            <SelectItem value="none">선택 안함</SelectItem>
-                            {categories?.map(cat => (
-                                <SelectItem key={cat.id} value={cat.id}>
-                                    <span className="flex items-center">
-                                        <span className="w-2 h-2 rounded-full mr-2" style={{backgroundColor: cat.color}}/>
-                                        {cat.name}
-                                    </span>
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-
-                {/* URL (Link Only) */}
-                {activeType === "link" && (
-                     <FormField
-                     control={form.control}
-                     name="url"
-                     render={({ field }) => (
-                       <FormItem>
-                         <Label className="text-foreground font-medium flex items-center gap-1">
-                             링크 주소
-                             <span className="text-red-500">*</span>
-                         </Label>
-                          <FormControl>
-                            <div className="relative">
-                              <Input
-                                placeholder="https://example.com"
-                                className="bg-white/50 pr-20"
-                                {...field}
-                                onBlur={(e) => {
-                                  field.onBlur();
-                                  if (!isEditMode) fetchMetadata(e.target.value);
-                                }}
-                              />
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                disabled={isScraping || !field.value}
-                                onClick={() => fetchMetadata(field.value || "")}
-                                className="absolute right-1 top-1 h-8 text-xs text-primary hover:text-primary/80"
-                              >
-                                {isScraping ? "가져오는 중..." : "정보 불러오기"}
-                              </Button>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+            {/* 제목 */}
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <Label className="text-foreground font-semibold text-sm">
+                    제목
+                    <span className="text-muted-foreground font-normal text-xs ml-2">(선택)</span>
+                  </Label>
+                  <FormControl>
+                    <Input
+                      placeholder="기록의 제목을 입력하세요"
+                      className="h-11 bg-background/80 border-border/50 focus:border-primary focus:ring-1 focus:ring-primary/20"
+                      {...field}
                     />
-                 )}
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                 {/* Image Preview (Link Only) */}
-                 {activeType === "link" && form.watch("imageUrl") && (
-                   <div className="relative h-32 w-full rounded-xl overflow-hidden border border-border/50 bg-muted/30">
-                     <img 
-                       src={form.watch("imageUrl")} 
-                       alt="Preview" 
-                       className="h-full w-full object-cover"
-                     />
-                     <Button
+            {/* 링크 URL */}
+            <FormField
+              control={form.control}
+              name="url"
+              render={({ field }) => (
+                <FormItem>
+                  <Label className="text-foreground font-semibold text-sm flex items-center gap-2">
+                    <LinkIcon className="h-4 w-4 text-muted-foreground" />
+                    링크
+                    <span className="text-muted-foreground font-normal text-xs">(선택)</span>
+                  </Label>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        placeholder="https://example.com"
+                        className="h-11 bg-background/80 border-border/50 pr-28 focus:border-primary focus:ring-1 focus:ring-primary/20"
+                        {...field}
+                        onBlur={(e) => {
+                          field.onBlur();
+                          if (!isEditMode && e.target.value) {
+                            fetchMetadata(e.target.value);
+                          }
+                        }}
+                      />
+                      <Button
                         type="button"
-                        variant="destructive"
+                        variant="ghost"
                         size="sm"
-                        className="absolute top-1 right-1 h-6 w-6 p-0 rounded-full"
-                        onClick={() => form.setValue("imageUrl", "")}
-                     >
-                        ×
-                     </Button>
-                   </div>
-                 )}
+                        disabled={isScraping || !field.value}
+                        onClick={() => fetchMetadata(field.value || "")}
+                        className="absolute right-1 top-1/2 -translate-y-1/2 h-8 px-3 text-xs font-medium text-primary hover:text-primary/80 hover:bg-primary/10"
+                      >
+                        {isScraping ? (
+                          <>
+                            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                            추출 중
+                          </>
+                        ) : (
+                          "정보 불러오기"
+                        )}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                {/* Title (Optional) */}
-                 <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <Label className="text-foreground font-medium">
-                          제목 <span className="text-muted-foreground font-normal text-xs">(선택)</span>
-                      </Label>
-                      <FormControl>
-                        <Input
-                          placeholder={activeType === "link" ? "링크 제목 (입력하지 않으면 자동 생성)" : "메모 제목"}
-                          className="bg-white/50"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Content */}
-                <FormField
-                  control={form.control}
-                  name="content"
-                  render={({ field }) => (
-                    <FormItem>
-                      <Label className="text-foreground font-medium flex items-center gap-1">
-                          {activeType === "link" ? "설명 / 메모" : "내용"}
-                          {activeType === "memo" && <span className="text-red-500">*</span>}
-                      </Label>
-                      <FormControl>
-                        <Textarea
-                          placeholder={activeType === "link" ? "이 링크에 대한 간단한 메모를 남겨보세요." : "자유롭게 생각을 적어보세요 (마크다운 지원)"}
-                          className="min-h-[120px] bg-white/50 resize-y font-mono text-sm leading-relaxed scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-             </div>
-
-            <DialogFooter>
-                <div className="flex w-full gap-2">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        className="flex-1"
-                        onClick={() => setIsOpen(false)}
-                    >
-                        취소
-                    </Button>
-                    <Button 
-                        type="submit" 
-                        disabled={isPending}
-                        className="flex-1 bg-gradient-to-r from-primary-600 to-aurora-500 hover:opacity-90"
-                    >
-                        {isPending ? "저장 중..." : (isEditMode ? "수정 완료" : "등록 완료")}
-                    </Button>
+            {/* 이미지 미리보기 */}
+            {watchImageUrl && (
+              <div className="relative group">
+                <div className="aspect-video w-full rounded-xl overflow-hidden border border-border/50 bg-muted/30">
+                  <img
+                    src={watchImageUrl}
+                    alt="미리보기"
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
                 </div>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  className="absolute top-2 right-2 h-8 w-8 p-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                  onClick={() => form.setValue("imageUrl", "")}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+
+            {/* 내용 */}
+            <FormField
+              control={form.control}
+              name="content"
+              render={({ field }) => (
+                <FormItem>
+                  <Label className="text-foreground font-semibold text-sm">
+                    내용
+                    {!watchUrl && <span className="text-red-500 ml-1">*</span>}
+                    {watchUrl && <span className="text-muted-foreground font-normal text-xs ml-2">(선택)</span>}
+                  </Label>
+                  <FormControl>
+                    <MarkdownEditor
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                      placeholder={watchUrl
+                        ? "이 링크에 대한 메모를 남겨보세요"
+                        : "자유롭게 생각을 적어보세요"
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* 카테고리 */}
+            <FormField
+              control={form.control}
+              name="categoryId"
+              render={({ field }) => (
+                <FormItem>
+                  <Label className="text-foreground font-semibold text-sm">
+                    카테고리
+                    <span className="text-muted-foreground font-normal text-xs ml-2">(선택)</span>
+                  </Label>
+                  <Select onValueChange={field.onChange} value={field.value || "none"}>
+                    <FormControl>
+                      <SelectTrigger className="h-11 bg-background/80 border-border/50 focus:border-primary focus:ring-1 focus:ring-primary/20">
+                        <SelectValue placeholder="카테고리를 선택하세요" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="none">선택 안함</SelectItem>
+                      {categories?.map(cat => (
+                        <SelectItem key={cat.id} value={cat.id}>
+                          <span className="flex items-center gap-2">
+                            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }} />
+                            {cat.name}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter className="pt-4 border-t border-white/10">
+              <div className="flex w-full gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1 h-11"
+                  onClick={() => setIsOpen(false)}
+                >
+                  취소
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isPending}
+                  className="flex-1 h-11 bg-gradient-to-r from-primary-600 to-aurora-500 hover:opacity-90 font-semibold shadow-lg"
+                >
+                  {isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                  {isPending ? "저장 중..." : (isEditMode ? "수정 완료" : "등록 완료")}
+                </Button>
+              </div>
             </DialogFooter>
           </form>
         </Form>
