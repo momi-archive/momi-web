@@ -3,8 +3,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Plus, Link as LinkIcon, FileText, Check } from "lucide-react";
-import { useState } from "react";
+import { Plus, Link as LinkIcon, FileText, Edit2 } from "lucide-react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,7 +23,7 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { useAddArchive, useCategories } from "@/hooks/useArchives";
+import { useAddArchive, useUpdateArchive, useCategories, ArchiveItem } from "@/hooks/useArchives";
 import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
@@ -42,13 +42,26 @@ const formSchema = z.object({
 });
 
 interface ArchiveInputProps {
-  onAdded?: () => void;
+  initialData?: ArchiveItem; // If provided, strictly edit mode
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  trigger?: React.ReactNode; 
+  onSuccess?: () => void;
 }
 
-export function ArchiveInput({ onAdded }: ArchiveInputProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export function ArchiveInput({ initialData, open, onOpenChange, trigger, onSuccess }: ArchiveInputProps) {
+  // If controlled (passed props), use them; otherwise local state
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = open !== undefined && onOpenChange !== undefined;
+  
+  const isOpen = isControlled ? open : internalOpen;
+  const setIsOpen = isControlled ? onOpenChange : setInternalOpen;
+
   const addArchive = useAddArchive();
+  const updateArchive = useUpdateArchive();
   const { data: categories } = useCategories();
+
+  const isEditMode = !!initialData;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -61,27 +74,49 @@ export function ArchiveInput({ onAdded }: ArchiveInputProps) {
     },
   });
 
+  // Reset form when initialData changes or dialog opens
+  useEffect(() => {
+    if (isOpen) {
+        if (initialData) {
+            form.reset({
+                type: initialData.type,
+                url: initialData.url || "",
+                title: initialData.title || "",
+                content: initialData.content || "",
+                categoryId: initialData.category_id || "none",
+            });
+        } else {
+            form.reset({
+                type: "link",
+                url: "",
+                title: "",
+                content: "",
+                categoryId: undefined,
+            });
+        }
+    }
+  }, [initialData, isOpen, form]);
+
   const activeType = form.watch("type");
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await addArchive.mutateAsync({
+      const payload = {
         type: values.type,
         url: values.url,
         content: values.content,
         title: values.title || (values.type === "link" ? "새로운 링크" : "새로운 메모"),
         category_id: values.categoryId === "none" ? undefined : values.categoryId,
-      });
+      };
 
-      form.reset({
-        type: activeType,
-        url: "",
-        title: "",
-        content: "",
-        categoryId: undefined
-      });
+      if (isEditMode && initialData) {
+        await updateArchive.mutateAsync({ id: initialData.id, ...payload });
+      } else {
+        await addArchive.mutateAsync(payload);
+      }
+
       setIsOpen(false);
-      onAdded?.();
+      onSuccess?.();
     } catch (error) {
       console.error(error);
     }
@@ -91,20 +126,26 @@ export function ArchiveInput({ onAdded }: ArchiveInputProps) {
   const setType = (type: "link" | "memo") => {
     form.setValue("type", type);
   };
+  
+  const isPending = addArchive.isPending || updateArchive.isPending;
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button
-          size="lg"
-          className="w-full h-14 text-lg bg-gradient-to-r from-primary-600 to-aurora-500 hover:opacity-90 shadow-lg animate-fade-in-up text-white"
-        >
-          <Plus className="mr-2 h-5 w-5" /> 기록 추가하기
-        </Button>
+        {trigger || (
+            <Button
+            size="lg"
+            className="w-full h-14 text-lg bg-gradient-to-r from-primary-600 to-aurora-500 hover:opacity-90 shadow-lg animate-fade-in-up text-white"
+            >
+            <Plus className="mr-2 h-5 w-5" /> 기록 추가하기
+            </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px] glass border-white/20 p-0 overflow-hidden gap-0">
         <DialogHeader className="p-6 pb-2">
-          <DialogTitle className="text-xl font-heading">기록 남기기</DialogTitle>
+          <DialogTitle className="text-xl font-heading">
+             {isEditMode ? "기록 수정하기" : "기록 남기기"}
+          </DialogTitle>
         </DialogHeader>
         
         <Form {...form}>
@@ -148,7 +189,7 @@ export function ArchiveInput({ onAdded }: ArchiveInputProps) {
                          카테고리 
                          <span className="text-red-500">*</span>
                     </Label>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || "none"}>
                         <FormControl>
                         <SelectTrigger className="bg-white/50 border-input">
                             <SelectValue placeholder="카테고리를 선택하세요" />
@@ -229,7 +270,7 @@ export function ArchiveInput({ onAdded }: ArchiveInputProps) {
                       <FormControl>
                         <Textarea
                           placeholder={activeType === "link" ? "이 링크에 대한 간단한 메모를 남겨보세요." : "자유롭게 생각을 적어보세요 (마크다운 지원)"}
-                          className="min-h-[120px] bg-white/50 resize-yyyy font-mono text-sm leading-relaxed scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent"
+                          className="min-h-[120px] bg-white/50 resize-y font-mono text-sm leading-relaxed scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent"
                           {...field}
                         />
                       </FormControl>
@@ -251,10 +292,10 @@ export function ArchiveInput({ onAdded }: ArchiveInputProps) {
                     </Button>
                     <Button 
                         type="submit" 
-                        disabled={addArchive.isPending}
+                        disabled={isPending}
                         className="flex-1 bg-gradient-to-r from-primary-600 to-aurora-500 hover:opacity-90"
                     >
-                        {addArchive.isPending ? "저장 중..." : "등록 완료"}
+                        {isPending ? "저장 중..." : (isEditMode ? "수정 완료" : "등록 완료")}
                     </Button>
                 </div>
             </DialogFooter>

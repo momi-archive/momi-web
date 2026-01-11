@@ -4,10 +4,11 @@ import { Loader2 } from "lucide-react";
 
 interface ArchiveGridProps {
   selectedCategoryId?: string;
+  searchQuery?: string;
 }
 
-export function ArchiveGrid({ selectedCategoryId }: ArchiveGridProps) {
-  const { data: archives, isLoading, error } = useArchives(selectedCategoryId);
+export function ArchiveGrid({ selectedCategoryId, searchQuery }: ArchiveGridProps) {
+  const { data: archives, isLoading, error } = useArchives(selectedCategoryId, searchQuery);
   const deleteArchive = useDeleteArchive();
 
   if (isLoading) {

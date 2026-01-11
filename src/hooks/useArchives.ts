@@ -107,9 +107,9 @@ export function useDeleteCategory() {
 
 // --- Archives Hooks ---
 
-export function useArchives(categoryId?: string) {
+export function useArchives(categoryId?: string, searchQuery?: string) {
   return useQuery({
-    queryKey: ["archives", categoryId],
+    queryKey: ["archives", categoryId, searchQuery],
     queryFn: async () => {
       let query = supabase
         .from("archives")
@@ -123,6 +123,10 @@ export function useArchives(categoryId?: string) {
 
       if (categoryId) {
         query = query.eq("category_id", categoryId);
+      }
+
+      if (searchQuery) {
+        query = query.or(`title.ilike.%${searchQuery}%,content.ilike.%${searchQuery}%`);
       }
 
       const { data, error } = await query;
@@ -151,6 +155,25 @@ export function useAddArchive() {
   });
 }
 
+export function useUpdateArchive() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string } & Partial<ArchiveItem>) => {
+      const { error } = await supabase.from("archives").update(updates).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("기록이 수정되었습니다.");
+      queryClient.invalidateQueries({ queryKey: ["archives"] });
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error("수정에 실패했습니다.");
+    },
+  });
+}
+
 export function useDeleteArchive() {
   const queryClient = useQueryClient();
 
@@ -160,12 +183,12 @@ export function useDeleteArchive() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Item deleted");
+      toast.success("기록이 삭제되었습니다.");
       queryClient.invalidateQueries({ queryKey: ["archives"] });
     },
     onError: (error) => {
       console.error(error);
-      toast.error("Failed to delete item");
+      toast.error("삭제에 실패했습니다.");
     },
   });
 }

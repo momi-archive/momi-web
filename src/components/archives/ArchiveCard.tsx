@@ -1,92 +1,106 @@
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { ExternalLink, Trash2, FileText, Link as LinkIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ArchiveItem, Category } from "@/hooks/useArchives";
+import { ArchiveItem } from "@/hooks/useArchives";
+import { ExternalLink, FileText, Link as LinkIcon, MoreHorizontal, Trash2, Edit2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { useCategories } from "@/hooks/useArchives";
+import { Badge } from "@/components/ui/badge";
+import { ArchiveInput } from "./ArchiveInput"; // Import ArchiveInput
+import { useState } from "react";
 
 interface ArchiveCardProps {
-  item: ArchiveItem & { categories: Category | null };
+  item: ArchiveItem;
   onDelete?: (id: string) => void;
 }
 
 export function ArchiveCard({ item, onDelete }: ArchiveCardProps) {
   const isLink = item.type === "link";
+  const { data: categories } = useCategories();
+  const category = categories?.find(c => c.id === item.category_id);
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   return (
-    <Card className="glass group overflow-hidden transition-all hover:shadow-glow hover:-translate-y-1 flex flex-col h-full">
-      {/* Header Image (Links only) */}
-      {isLink && item.image_url && (
-         <div className="aspect-video w-full overflow-hidden bg-muted">
-            <img 
-              src={item.image_url} 
-              alt={item.title || "Link preview"} 
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-            />
-         </div>
-      )}
-
-      <CardHeader className="p-4 pb-2 space-y-1">
-        <div className="flex justify-between items-start">
-            <div className={`p-1.5 rounded-md ${isLink ? 'bg-blue-100 text-blue-600' : 'bg-orange-100 text-orange-600'}`}>
-                {isLink ? <LinkIcon size={14} /> : <FileText size={14} />}
+    <>
+        <Card className="glass group hover:shadow-lg transition-all duration-300 flex flex-col h-full overflow-hidden border-border/50 bg-card/60 hover:-translate-y-1">
+        <CardHeader className="p-4 pb-2 space-y-2">
+            <div className="flex justify-between items-start gap-2">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    {isLink ? <LinkIcon className="h-3 w-3" /> : <FileText className="h-3 w-3" />}
+                    <span>{new Date(item.created_at).toLocaleDateString()}</span>
+                </div>
+                {category && (
+                    <Badge 
+                        variant="secondary" 
+                        className="text-[10px] px-1.5 py-0 h-5 font-normal bg-opacity-10 dark:bg-opacity-20"
+                        style={{ 
+                            backgroundColor: `${category.color}20`, 
+                            color: category.color,
+                            borderColor: `${category.color}40`
+                        }}
+                    >
+                        {category.name}
+                    </Badge>
+                )}
             </div>
-            {item.categories && (
-                <span 
-                    className="text-[10px] px-2 py-1 rounded-full bg-secondary text-secondary-foreground font-medium"
-                    style={{ backgroundColor: item.categories.color + '20', color: item.categories.color }}
-                >
-                    {item.categories.name}
-                </span>
-            )}
-        </div>
+            <h3 className="font-bold text-lg leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+                {item.title || "Untitled"}
+            </h3>
+        </CardHeader>
         
-        {isLink ? (
-             <>
-                <h3 className="font-heading font-semibold text-lg line-clamp-1 group-hover:text-primary transition-colors">
-                {item.title || item.url}
-                </h3>
-                <p className="text-xs text-muted-foreground truncate font-mono">
-                {new URL(item.url!).hostname}
+        <CardContent className="p-4 pt-0 flex-1 min-h-[80px]">
+            {isLink ? (
+                <p className="text-sm text-muted-foreground line-clamp-3">
+                {item.content || "설명이 없습니다."}
                 </p>
-             </>
-        ) : (
-            <div className="h-6" /> // Spacer for alignment if needed
-        )}
-      </CardHeader>
+            ) : (
+                <div className="prose prose-sm dark:prose-invert line-clamp-6 text-sm">
+                    <ReactMarkdown>{item.content || ""}</ReactMarkdown>
+                </div>
+            )}
+        </CardContent>
 
-      <CardContent className="p-4 pt-0 flex-1 min-h-[80px]">
-        {isLink ? (
-            <p className="text-sm text-muted-foreground line-clamp-3">
-            {item.content || "설명이 없습니다."}
-            </p>
-        ) : (
-            <div className="prose prose-sm dark:prose-invert line-clamp-6 text-sm">
-                <ReactMarkdown>{item.content || ""}</ReactMarkdown>
+        <CardFooter className="p-4 pt-0 flex justify-between gap-2 mt-auto">
+            <div className="flex gap-1">
+                <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-muted-foreground hover:text-primary p-0 h-8 w-8"
+                    onClick={() => setIsEditOpen(true)}
+                >
+                    <Edit2 className="h-4 w-4" />
+                </Button>
+                <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-muted-foreground hover:text-destructive p-0 h-8 w-8"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        if(confirm('정말 삭제하시겠습니까?')) {
+                            onDelete?.(item.id);
+                        }
+                    }}
+                >
+                <Trash2 className="h-4 w-4" />
+                </Button>
             </div>
-        )}
-      </CardContent>
+            
+            {isLink && (
+                <Button variant="secondary" size="sm" asChild className="w-full max-w-[100px]">
+                <a href={item.url} target="_blank" rel="noopener noreferrer">
+                    방문하기 <ExternalLink className="ml-2 h-3 w-3" />
+                </a>
+                </Button>
+            )}
+        </CardFooter>
+        </Card>
 
-      <CardFooter className="p-4 pt-0 flex justify-between gap-2 mt-auto">
-        <Button 
-            variant="ghost" 
-            size="sm" 
-            className="text-muted-foreground hover:text-destructive p-0 h-8 w-8"
-            onClick={(e) => {
-                e.stopPropagation();
-                onDelete?.(item.id);
-            }}
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
-        
-        {isLink && (
-            <Button variant="secondary" size="sm" asChild className="w-full">
-            <a href={item.url} target="_blank" rel="noopener noreferrer">
-                방문하기 <ExternalLink className="ml-2 h-3 w-3" />
-            </a>
-            </Button>
-        )}
-      </CardFooter>
-    </Card>
+        {/* Edit Modal */}
+        <ArchiveInput 
+            initialData={item} 
+            open={isEditOpen} 
+            onOpenChange={setIsEditOpen} 
+            trigger={<></>} // No trigger needed as distinct controlled Dialog
+        />
+    </>
   );
 }
